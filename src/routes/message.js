@@ -15,27 +15,25 @@ router.get('/:messageId', (req, res) => {
 })
 
 /** Route to add a new message. */
-// router.post('/', (req, res) => {
-//     return res.send({
-//         message: 'Create new message',
-//         data: req.body
-//     })
-// })
+// we need to correctly associate message with user
 
+// Message created
 router.post('/', (req, res) => {
-    let message = new Message(req.body)
-    message.save()
-    .then(message => {
-        return User.findById(message.author)
+    let message = new Message(req.body) // Create message (message body)
+    message.save() // Write to DB collection using schema (save to DB)
+    .then(message => { // Promise chain start (success)
+        // Find the user that sent the message
+        return User.findById(message.author) // Message created. Find the Author. 
     })
-    .then(user => {
+    .then(user => { // we need to correctly associate message with user
         console.log(user)
-        user.messages.unshift(message)
-        return user.save()
+        // store the message into user
+        user.messages.unshift(message) // unshift (put message in front of array)
+        return user.save() // update user to store new message & changes
     })
     .then(_ => {
         return res.send(message)
-    }).catch(err => {
+    }).catch(err => { // error catch
         throw err.message
     })
 })
